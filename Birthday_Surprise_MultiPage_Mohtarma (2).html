@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Birthday Surprise for Mohtarma 🎉</title>
+<meta name="theme-color" content="#ff4d6d">
+<style>
+  :root{
+    --bg:#0e0e14;
+    --card:#171722;
+    --accent:#ff4d6d;
+    --accent2:#ffd166;
+    --text:#f7f7fb;
+    --muted:#c9c9dd;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:
+      radial-gradient(1000px 600px at 0% -10%, #211326, transparent 55%),
+      radial-gradient(1000px 600px at 100% -10%, #132126, transparent 55%),
+      linear-gradient(180deg, #101018, #0b0b12);
+    color:var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    overflow:hidden;
+  }
+  .wrap{height:100%; display:grid; place-items:center; padding:18px;}
+  .card{
+    width:min(900px,96vw); height:min(620px,92vh);
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:28px; overflow:hidden; position:relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.04);
+    backdrop-filter: blur(8px);
+  }
+  .page{position:absolute; inset:0; padding:26px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; opacity:0; transform:translateX(40px) scale(.98); pointer-events:none;}
+  .page.active{opacity:1; transform:translateX(0) scale(1); pointer-events:auto; transition:opacity .4s ease, transform .4s ease;}
+  .title{font-size: clamp(26px, 4vw, 44px); line-height:1.15; text-align:center; margin:0; letter-spacing:.3px;}
+  .subtitle{color:var(--muted); text-align:center; max-width:70ch; font-size: clamp(14px, 2.2vw, 18px);}
+  .btns{position:absolute; left:0; right:0; bottom:18px; display:flex; justify-content:space-between; padding:0 20px;}
+  button{
+    cursor:pointer; border:none; font-weight:800;
+    padding:14px 18px; border-radius:14px;
+    background:linear-gradient(180deg, #ff5d7b, #ff3f66);
+    color:#fff; box-shadow:0 10px 24px rgba(255,77,109,.35);
+  }
+  .ghost{background: rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.18); box-shadow:none;}
+  .progress{position:absolute; top:14px; left:0; right:0; display:flex; gap:8px; justify-content:center;}
+  .dot{width:10px; height:10px; border-radius:999px; background:#ffffff22; border:1px solid #ffffff28;}
+  .dot.active{background:var(--accent); border-color:#fff4;}
+  .hearts{position:absolute; inset:0; overflow:hidden; pointer-events:none;}
+  .heart{position:absolute; width:16px; height:16px; transform:rotate(45deg); animation:float var(--dur) linear var(--delay) infinite;}
+  .heart:before,.heart:after{content:""; position:absolute; width:16px; height:16px; border-radius:50%; background: var(--c, #ff6b8a);}
+  .heart:before{left:-8px} .heart:after{top:-8px}
+  @keyframes float{from{transform:translateY(10px) rotate(45deg); opacity:0} 10%{opacity:.9} to{transform:translateY(-110vh) rotate(45deg); opacity:0}}
+  canvas#confetti{position:absolute; inset:0; width:100%; height:100%; pointer-events:none;}
+  .tag{display:inline-flex; gap:8px; align-items:center; padding:8px 14px; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);}
+  .note{font-size: clamp(16px, 2.4vw, 20px); line-height:1.8; text-align:center; max-width:68ch;}
+  /* Cake */
+  .cake{position:relative; width:220px; height:200px; margin-top:8px;}
+  .layer{position:absolute; left:50%; transform:translateX(-50%); width:220px; height:60px; background:#ffb3c1; border-radius:18px;}
+  .layer.top{top:20px; width:200px; background:#ffc8dd;}
+  .layer.mid{top:80px;}
+  .layer.bot{top:140px;}
+  .icing{position:absolute; left:50%; transform:translateX(-50%); width:230px; height:26px; top:6px; background:#fff; border-radius:14px;}
+  .candle{position:absolute; top:0; left:50%; transform:translateX(-50%); width:8px; height:22px; background:#ffe066; border-radius:4px;}
+  .flame{position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:12px; height:18px; background:#ffd166; border-radius:50% 50% 50% 50%/60% 60% 40% 40%; box-shadow:0 0 10px #ffd166aa;}
+  .slice{position:absolute; top:80px; left:50%; transform:translateX(-50%) translateY(0); width:90px; height:60px; background:#ffb3c1; border-radius:16px; outline:2px dashed #fff6; display:none;}
+  .cut-hint{font-size:14px; color:#fff; opacity:.8}
+  .big{font-size:clamp(24px,4vw,34px)}
+  .small{font-size:clamp(14px,2.4vw,18px)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <canvas id="confetti"></canvas>
+    <div class="hearts" id="hearts"></div>
+    <div class="progress" id="progress"></div>
+
+    <!-- PAGE 1 -->
+    <section class="page active" data-page="1">
+      <span class="tag">🎁 Surprise</span>
+      <h1 class="title">I have something special for you</h1>
+      <p class="subtitle">Sound on for a tiny surprise 🔊</p>
+      <div class="btns">
+        <button class="ghost" id="musicBtn">Play Music 🎵</button>
+        <button id="next1">Next ➡️</button>
+      </div>
+    </section>
+
+    <!-- PAGE 2 -->
+    <section class="page" data-page="2">
+      <h2 class="title">Waise to bohut kuch kehna tha...</h2>
+      <p class="note">par shuru karte hain yaha se...<br>bas dekhte jao... aur pighalte jao 💖</p>
+      <div class="btns">
+        <button class="ghost" id="back2">⬅️ Back</button>
+        <button id="next2">Next ➡️</button>
+      </div>
+    </section>
+
+    <!-- PAGE 3 -->
+    <section class="page" data-page="3">
+      <h2 class="title">It’s the most special day for you</h2>
+      <p class="subtitle">Confetti ready? 🎉</p>
+      <div class="btns">
+        <button class="ghost" id="back3">⬅️ Back</button>
+        <button id="next3">Blast Confetti & Next ➡️</button>
+      </div>
+    </section>
+
+    <!-- PAGE 4 : MAIN WISH -->
+    <section class="page" data-page="4">
+      <h2 class="title big">Celebrate with me</h2>
+      <p class="note">
+        <strong>Happy Birthday my sweetheart</strong><br><br>
+        Happy Birthday to the one who makes my heart skip a beat 💖<br>
+        Aaj ka din tumhara hai… lekin cake ka half hissa to mera hoga 😜<br>
+        May your day be filled with endless love, unstoppable laughter, and may every single wish of yours come true today and always.
+      </p>
+      <div class="btns">
+        <button class="ghost" id="back4">⬅️ Back</button>
+        <button id="next4">Next ➡️</button>
+      </div>
+    </section>
+
+    <!-- PAGE 5 : CAKE CUT -->
+    <section class="page" data-page="5">
+      <h2 class="title">Time to cut the cake 🎂</h2>
+      <div class="cake" id="cake">
+        <div class="candle"><div class="flame"></div></div>
+        <div class="layer top"><div class="icing"></div></div>
+        <div class="layer mid"><div class="icing"></div></div>
+        <div class="layer bot"><div class="icing"></div></div>
+        <div class="slice" id="slice"></div>
+      </div>
+      <p class="cut-hint">Tap the cake to cut a slice!</p>
+      <div class="btns">
+        <button class="ghost" id="back5">⬅️ Back</button>
+        <button id="next5">Next ➡️</button>
+      </div>
+    </section>
+
+    <!-- PAGE 6 : WHY I LIKE YOU -->
+    <section class="page" data-page="6">
+      <h2 class="title">Why I like you</h2>
+      <p class="note">Tum ho thodi pagal... par <strong>meri</strong> wali pagal ho ❤️</p>
+      <div class="btns">
+        <button class="ghost" id="back6">⬅️ Back</button>
+        <button id="next6">Next ➡️</button>
+      </div>
+    </section>
+
+    <!-- PAGE 7 : PERMANENT RESIDENCE -->
+    <section class="page" data-page="7">
+      <h2 class="title">So… will you make my heart your permanent residence?</h2>
+      <p class="subtitle">Because I think we’d look good together 😍</p>
+      <div class="btns">
+        <button class="ghost" id="back7">⬅️ Back</button>
+        <button id="next7">Next ➡️</button>
+      </div>
+    </section>
+
+    <!-- PAGE 8 : FINAL CONFESSION -->
+    <section class="page" data-page="8">
+      <h2 class="title">Mujhe tumse bas yahi kehna hai ki…</h2>
+      <p class="note small"><strong>I love you ❤️</strong></p>
+      <div class="note">
+        <p>“You’re not just my favorite person—you’re my favorite feeling.”</p>
+        <p>“With you, ordinary turns unforgettable.”</p>
+        <p>“Deal pakki: cake ka half mera, dil ka full tumhara.”</p>
+        <p>“Mujhe tum pe crush nahi, full-fledged dedication ho chuki hai.”</p>
+        <p>“Application submitted: ‘Your forever person’. Status: Waiting for your yes.”</p>
+      </div>
+      <div class="btns">
+        <button class="ghost" id="back8">⬅️ Back</button>
+        <button id="restart">Replay 🔁</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+// Helpers
+const pages = [...document.querySelectorAll('.page')];
+let idx = 0;
+function show(i){
+  pages.forEach(p=>p.classList.remove('active'));
+  pages[i].classList.add('active');
+  idx = i;
+  dots();
+}
+function dots(){
+  const pr = document.getElementById('progress');
+  pr.innerHTML = "";
+  for(let i=0;i<pages.length;i++){
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===idx?' active':'');
+    pr.appendChild(d);
+  }
+}
+// Hearts BG
+const heartsWrap = document.getElementById('hearts');
+function spawnHeart(){
+  const h = document.createElement('div');
+  h.className = 'heart';
+  const left = Math.random()*100;
+  const dur = 6 + Math.random()*6;
+  const delay = Math.random()*4;
+  h.style.left = left+'vw';
+  h.style.setProperty('--dur', dur+'s');
+  h.style.setProperty('--delay', delay+'s');
+  h.style.setProperty('--c', ['#ff4d6d','#ff6b8a','#ff8aa0'][Math.floor(Math.random()*3)]);
+  heartsWrap.appendChild(h);
+  setTimeout(()=> heartsWrap.removeChild(h), (dur+delay)*1000);
+}
+setInterval(spawnHeart, 900);
+
+// Confetti
+const cnv = document.getElementById('confetti');
+const ctx = cnv.getContext('2d');
+function resize(){ cnv.width = cnv.clientWidth * devicePixelRatio; cnv.height = cnv.clientHeight * devicePixelRatio; }
+addEventListener('resize', resize); resize();
+let confetti = [];
+function piece(){
+  return {x:Math.random()*cnv.width, y:-10, s:2+Math.random()*3, r:(4+Math.random()*6), c:`hsl(${Math.random()*360},90%,60%)`, a:Math.random()*Math.PI};
+}
+function blast(n=180){ for(let i=0;i<n;i++) confetti.push(piece()); }
+function draw(){
+  ctx.clearRect(0,0,cnv.width,cnv.height);
+  confetti.forEach(p=>{
+    p.y += p.s * 2;
+    p.x += Math.sin(p.a += .03)*2;
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
+    ctx.fillStyle = p.c; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r); ctx.restore();
+  });
+  confetti = confetti.filter(p=>p.y < cnv.height+20);
+  requestAnimationFrame(draw);
+}
+draw();
+
+// Music via WebAudio (no external files)
+let started=false;
+const musicBtn = document.getElementById('musicBtn');
+musicBtn.addEventListener('click', ()=>{
+  if(started) { blast(160); return; }
+  started = true; blast(260);
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const ac = new AC();
+  const master = ac.createGain(); master.gain.value = 0.6; master.connect(ac.destination);
+  const chords = [
+    [261.63, 329.63, 392.00],
+    [293.66, 369.99, 440.00],
+    [329.63, 392.00, 493.88],
+    [261.63, 349.23, 440.00],
+  ];
+  const tempo=82, beat=60/tempo;
+  function chord(fs,t,d){
+    const g=ac.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.35,t+.2); g.gain.linearRampToValueAtTime(.0,t+d); g.connect(master);
+    fs.forEach((f,i)=>{ const o=ac.createOscillator(); o.type=i? 'triangle':'sine'; o.frequency.value=f; const v=ac.createGain(); v.gain.value=.18+.05*i; o.connect(v); v.connect(g); o.start(t); o.stop(t+d); });
+  }
+  function note(f,t,d,v=.22){ const o=ac.createOscillator(); o.type='sine'; const g=ac.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v,t+.06); g.gain.linearRampToValueAtTime(0,t+d); o.frequency.value=f; o.connect(g); g.connect(master); o.start(t); o.stop(t+d); }
+  let t=ac.currentTime+.1;
+  for(let k=0;k<4;k++){ chords.forEach(ch=>{ chord(ch,t,4*beat); note(ch[0]*2,t,beat*.9); note(ch[1]*2,t+.5*beat,beat*.9); note(ch[2]*2,t+1.0*beat,beat*.9); note(ch[1]*2.5,t+1.5*beat,beat*.9); t+=4*beat; }); }
+});
+
+// Nav bindings
+document.getElementById('next1').onclick = ()=> show(1);
+document.getElementById('next2').onclick = ()=> show(2);
+document.getElementById('next3').onclick = ()=> { blast(200); show(3); };
+document.getElementById('next4').onclick = ()=> show(4);
+document.getElementById('next5').onclick = ()=> show(5);
+document.getElementById('next6').onclick = ()=> show(6);
+document.getElementById('next7').onclick = ()=> show(7);
+document.getElementById('restart').onclick = ()=> { show(0); blast(160); };
+document.getElementById('back2').onclick = ()=> show(0);
+document.getElementById('back3').onclick = ()=> show(1);
+document.getElementById('back4').onclick = ()=> show(2);
+document.getElementById('back5').onclick = ()=> show(3);
+document.getElementById('back6').onclick = ()=> show(4);
+document.getElementById('back7').onclick = ()=> show(5);
+document.getElementById('back8').onclick = ()=> show(6);
+
+// CAKE CUT interaction
+const cake = document.getElementById('cake');
+const slice = document.getElementById('slice');
+let cut=false;
+cake.addEventListener('click', ()=>{
+  if(cut) { blast(120); return; }
+  cut=true;
+  slice.style.display='block';
+  slice.animate([{transform:'translate(-50%,0)'},{transform:'translate(-50%,-40px)'}],{duration:500, fill:'forwards'});
+  blast(220);
+});
+
+// init
+dots();
+</script>
+</body>
+</html>
